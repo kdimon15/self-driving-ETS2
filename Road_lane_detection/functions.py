@@ -74,6 +74,17 @@ def draw_lines(image, lines, color=[255, 0, 0], thickness=2, make_copy=True):
     return image
 
 
+def check_lines(lines):
+    new_lines = []
+    for line in lines:
+        x1, y1, x2, y2 = line.reshape(4)
+        x_diff = abs(x1 - x2)
+        y_diff = abs(y1 - y2)
+        if y_diff / x_diff >= 0.7:
+            new_lines.append(line)
+    return new_lines
+
+
 def find_lines(image):
     selected_image = white_and_yellow(image)
     gray = convert_to_gray(selected_image)
@@ -82,6 +93,8 @@ def find_lines(image):
     interest = region_of_interest(edge_image)
     cv2.imshow("interest", interest)
     lines = hough_lines(interest)
+    if lines is not None:
+        lines = check_lines(lines)
     lines_image = draw_lines(image, lines)
     return lines_image
 
@@ -89,7 +102,6 @@ def find_lines(image):
 if __name__ == "__main__":
     path2video = "output.mov"
     cap = cv2.VideoCapture(path2video)
-
     while cap.isOpened():
         ret, frame = cap.read()
         resized = frame[570:-60, 600:1320]
