@@ -60,18 +60,30 @@ def detect_edges(image, low_threshold=50, high_threshold=150):
     return cv2.Canny(image, low_threshold, high_threshold)
 
 
+def hough_lines(image):
+    return cv2.HoughLinesP(image, rho=1, theta=np.pi / 180, threshold=20, minLineLength=20, maxLineGap=300)
+
+
+def draw_lines(image, lines, color=[255, 0, 0], thickness=2, make_copy=True):
+    if make_copy:
+        image = np.copy(image)
+    if lines is not None:
+        for line in lines:
+            for x1, y1, x2, y2 in line:
+                cv2.line(image, (x1, y1), (x2, y2), color, thickness)
+    return image
+
+
 def find_lines(image):
     selected_image = white_and_yellow(image)
-    cv2.imshow("selected", selected_image)
     gray = convert_to_gray(selected_image)
-    cv2.imshow("gray", gray)
     blurred_image = blur_image(gray)
-    cv2.imshow("blur", blurred_image)
     edge_image = detect_edges(blurred_image, low_threshold=30)
-    cv2.imshow("edge", edge_image)
     interest = region_of_interest(edge_image)
-    return interest
-
+    cv2.imshow("interest", interest)
+    lines = hough_lines(interest)
+    lines_image = draw_lines(image, lines)
+    return lines_image
 
 
 if __name__ == "__main__":
