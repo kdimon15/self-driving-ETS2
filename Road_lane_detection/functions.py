@@ -3,6 +3,7 @@ import pyautogui
 import numpy as np
 import cv2
 from math import sqrt
+import os
 
 
 def get_screenshot():
@@ -142,3 +143,20 @@ def test_find_lines(canny_image, image):
         if True: # len(approx) == 4:
             cv2.drawContours(image, cntrRect, -1, (0, 255, 0), 2)
             cntrRect.append(approx)
+
+
+if __name__ == "__main__":
+    path2video = "output.mov"
+    cap = cv2.VideoCapture(path2video)
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        resized = frame[550:-60, 600:1320]
+        # cv2.imshow("resized", resized)
+        lines_image = find_lines(resized)
+
+        cv2.imshow("frame", frame[300:, :-150])
+        cv2.imshow("lines", lines_image)
+        if cv2.waitKey(1) and keyboard.is_pressed("q"):
+            break
+    cap.release()
