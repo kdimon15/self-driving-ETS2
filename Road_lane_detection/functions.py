@@ -2,7 +2,6 @@ import keyboard
 import pyautogui
 import numpy as np
 import cv2
-from math import sqrt
 
 
 def get_screenshot():
@@ -97,6 +96,11 @@ def find_lines(image):
         lines = check_lines(lines)
     lines_image = draw_lines(image, lines)
     return lines_image
+
+
+def from_to_top(img):
+    size = (1280, 720)
+
 
 
 if __name__ == "__main__":
