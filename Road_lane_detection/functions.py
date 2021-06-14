@@ -49,44 +49,6 @@ def draw_lines(image, lines, color=(255, 0, 0), thickness=2, make_copy=True):
     return image
 
 
-def white_and_yellow(image):
-    lower = np.uint8([170, 170, 170])
-    upper = np.uint8([255, 255, 255])
-    white_mask = cv2.inRange(image, lower, upper)
-    # yellow color mask
-    lower = np.uint8([190, 190, 0])
-    upper = np.uint8([255, 255, 255])
-    yellow_mask = cv2.inRange(image, lower, upper)
-    # combine the mask
-    mask = cv2.bitwise_or(white_mask, yellow_mask)
-    masked = cv2.bitwise_and(image, image, mask=mask)
-    return masked
-
-
-def convert_to_gray(image):
-    return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-
-
-def blur_image(image, kernel_size=15):
-    return cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
-
-
-def detect_edges(image, low_threshold=50, high_threshold=150):
-    return cv2.Canny(image, low_threshold, high_threshold)
-
-
-def hough_lines(image):
-    return cv2.HoughLinesP(image, rho=1, theta=np.pi / 180, threshold=50, minLineLength=20, maxLineGap=50)
-
-
-def detect_lines(image):
-    selected_image = white_and_yellow(image)
-    gray = convert_to_gray(selected_image)
-    blurred_image = blur_image(gray)
-    edge_image = detect_edges(blurred_image, low_threshold=30)
-    lines = hough_lines(edge_image)
-    return lines
-
 
 class BirdEye:
     def __init__(self, pts1, pts2, cam_matrix, distortion_coef):

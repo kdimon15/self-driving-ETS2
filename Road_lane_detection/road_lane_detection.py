@@ -12,8 +12,8 @@ def find_lines(image, birdeye):
     preprocessed_image = preprocess_image(image, birdeye)
     lines = detect_lines(preprocessed_image)
     lines_image = draw_lines(preprocessed_image, lines)
-    lines_image = birdeye.just_back(normal_img_shape, lines_image)
-    return lines_image
+    final_image = birdeye.just_back(normal_img_shape, lines_image)
+    return final_image
 
 
 if __name__ == "__main__":
