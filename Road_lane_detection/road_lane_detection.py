@@ -3,18 +3,14 @@ import pyautogui
 import numpy as np
 import cv2
 import pickle
-from functions import init_birdeye, preprocess_image, detect_lines, draw_lines
+from BirdEye import init_birdeye
+
 import time
 
 
-def find_lines(image, birdeye):
-    normal_img_shape = (image.shape[1], image.shape[0])
-    preprocessed_image = preprocess_image(image, birdeye)
-    lines = detect_lines(preprocessed_image)
-    lines_image = draw_lines(preprocessed_image, lines)
-    final_image = birdeye.just_back(normal_img_shape, lines_image)
-    return final_image
-
+def pipeline(img, birdEye):
+    ground_img = birdEye.undistort(img)
+    return img
 
 if __name__ == "__main__":
     path2video = "video.mov"
@@ -25,7 +21,8 @@ if __name__ == "__main__":
         start = time.time()
         ret, frame = cap.read()
         resized = frame[590:-60, 500:-600]
-        lines_image = find_lines(resized, birdEye)
+        cv2.imshow("resized", resized)
+        lines_image = pipeline(resized, birdEye)
 
         cv2.imshow("frame", frame)
         cv2.imshow("lines", lines_image)
