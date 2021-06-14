@@ -46,7 +46,6 @@ def region_of_interest(image):
     ])
     mask = np.zeros_like(image)
     cv2.fillPoly(mask, polygons, 255)
-    cv2.imshow("mask", mask)
     masked_image = cv2.bitwise_and(image, mask)
     return masked_image
 
@@ -96,11 +95,6 @@ def find_lines(image):
         lines = check_lines(lines)
     lines_image = draw_lines(image, lines)
     return lines_image
-
-
-def from_to_top(img):
-    size = (1280, 720)
-
 
 
 if __name__ == "__main__":
