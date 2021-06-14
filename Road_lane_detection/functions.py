@@ -6,10 +6,10 @@ import pickle
 def show_dotted_image(this_image, points, name, thickness=5,
                       lines_color=(255, 0, 255), dot_color=(0, 0, 255), d=10):
     image = np.copy(this_image)
-    cv2.line(image, points[0], points[1], lines_color, thickness)
-    cv2.line(image, points[2], points[3], lines_color, thickness)
-    for point in points:
-        cv2.circle(image, point, d, dot_color, cv2.FILLED)
+    cv2.line(image, (int(points[0][0]), int(points[0][1])), (int(points[1][0]), int(points[1][1])), lines_color, thickness)
+    cv2.line(image, (int(points[2][0]), int(points[2][1])), (int(points[3][0]), int(points[3][1])), lines_color, thickness)
+    for (x, y) in points:
+        cv2.circle(image, (int(x), int(y)), d, dot_color, cv2.FILLED)
     cv2.imshow(name, image)
 
 
@@ -17,8 +17,8 @@ def init_birdeye():
     calibration_data = pickle.load(open("calibration_data.p", "rb"))
     matrix = calibration_data['camera_matrix']
     dist_coef = calibration_data['distortion_coefficient']
-    source_points = [(900, 600), (640, 1025), (1260, 1025), (1010, 600)]
-    dest_points = [(320, 0), (320, 720), (960, 720), (960, 0)]
+    source_points = [(570, 160), (300, 570), (880, 570), (700, 160)]
+    dest_points = [(170, 0), (170, 640), (470, 640), (470, 0)]
     birdEye = BirdEye(source_points, dest_points, matrix, dist_coef)
     return birdEye
 
@@ -59,14 +59,18 @@ class BirdEye:
         return image
 
     def sky_view(self, ground_image, show_dotted=False):
-        temp_image = self.undistort(ground_image, show_dotted=False)
-        shape = (temp_image.shape[1], temp_image.shape[0])
-        warp_image = cv2.warpPerspective(temp_image, self.warp_matrix, shape, flags=cv2.INTER_LINEAR)
+        shape = (640, 640)
+        show_dotted_image(np.copy(ground_image), self.src_points, "tmp")
+        print(ground_image.shape)
+        warp_image = cv2.warpPerspective(ground_image, self.warp_matrix, shape, flags=cv2.INTER_LINEAR)
+        print(warp_image.shape)
         if show_dotted:
             show_dotted_image(warp_image, self.dest_points, "warp")
         return warp_image
 
 
+# class LaneFilter:
+#     def __init__(self, p):
 
 
 
