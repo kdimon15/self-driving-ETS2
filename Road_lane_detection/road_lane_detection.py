@@ -14,7 +14,7 @@ def find_lines(image, birdeye):
 
 
 if __name__ == "__main__":
-    path2video = "night_road.mov"
+    path2video = "video.mov"
     cap = cv2.VideoCapture(path2video)
     birdEye = init_birdeye()
 

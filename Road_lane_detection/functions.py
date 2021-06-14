@@ -60,10 +60,7 @@ class BirdEye:
 
     def sky_view(self, ground_image, show_dotted=False):
         shape = (640, 640)
-        show_dotted_image(np.copy(ground_image), self.src_points, "tmp")
-        print(ground_image.shape)
         warp_image = cv2.warpPerspective(ground_image, self.warp_matrix, shape, flags=cv2.INTER_LINEAR)
-        print(warp_image.shape)
         if show_dotted:
             show_dotted_image(warp_image, self.dest_points, "warp")
         return warp_image
