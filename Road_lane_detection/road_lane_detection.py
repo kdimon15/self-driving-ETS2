@@ -3,14 +3,17 @@ import pyautogui
 import numpy as np
 import cv2
 import pickle
-from functions import BirdEye, draw_lines, draw_points, show_dotted_image, init_birdeye
+from functions import init_birdeye, preprocess_image, detect_lines, draw_lines
 import time
 
 
 def find_lines(image, birdeye):
-    tmp_image = birdeye.undistort(image, show_dotted=False)
-    tmp_image = birdeye.sky_view(tmp_image, show_dotted=False)
-    return tmp_image
+    normal_img_shape = (image.shape[1], image.shape[0])
+    preprocessed_image = preprocess_image(image, birdeye)
+    lines = detect_lines(preprocessed_image)
+    lines_image = draw_lines(preprocessed_image, lines)
+    lines_image = birdeye.just_back(normal_img_shape, lines_image)
+    return lines_image
 
 
 if __name__ == "__main__":
@@ -21,11 +24,10 @@ if __name__ == "__main__":
     while cap.isOpened():
         start = time.time()
         ret, frame = cap.read()
-        resized = frame[450:-60, 300:-450]
-        #cv2.imshow("resized", resized)
+        resized = frame[590:-60, 500:-600]
         lines_image = find_lines(resized, birdEye)
 
-        # cv2.imshow("frame", frame)
+        cv2.imshow("frame", frame)
         cv2.imshow("lines", lines_image)
         if cv2.waitKey(1) and keyboard.is_pressed("q"):
             break

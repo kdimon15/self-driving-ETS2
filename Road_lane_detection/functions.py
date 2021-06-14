@@ -13,12 +13,20 @@ def show_dotted_image(this_image, points, name, thickness=5,
     cv2.imshow(name, image)
 
 
+def preprocess_image(image, birdeye, make_copy=True):
+    if make_copy:
+        image = np.copy(image)
+    image = birdeye.undistort(image, show_dotted=False)
+    image = birdeye.sky_view(image, show_dotted=False)
+    return image
+
+
 def init_birdeye():
     calibration_data = pickle.load(open("calibration_data.p", "rb"))
     matrix = calibration_data['camera_matrix']
     dist_coef = calibration_data['distortion_coefficient']
-    source_points = [(570, 160), (300, 570), (880, 570), (700, 160)]
-    dest_points = [(170, 0), (170, 640), (470, 640), (470, 0)]
+    source_points = [(390, 0), (100, 430), (680, 430), (500, 0)]
+    dest_points = [(250, 0), (250, 800), (550, 800), (550, 0)]
     birdEye = BirdEye(source_points, dest_points, matrix, dist_coef)
     return birdEye
 
@@ -41,6 +49,45 @@ def draw_lines(image, lines, color=(255, 0, 0), thickness=2, make_copy=True):
     return image
 
 
+def white_and_yellow(image):
+    lower = np.uint8([170, 170, 170])
+    upper = np.uint8([255, 255, 255])
+    white_mask = cv2.inRange(image, lower, upper)
+    # yellow color mask
+    lower = np.uint8([190, 190, 0])
+    upper = np.uint8([255, 255, 255])
+    yellow_mask = cv2.inRange(image, lower, upper)
+    # combine the mask
+    mask = cv2.bitwise_or(white_mask, yellow_mask)
+    masked = cv2.bitwise_and(image, image, mask=mask)
+    return masked
+
+
+def convert_to_gray(image):
+    return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+
+def blur_image(image, kernel_size=15):
+    return cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
+
+
+def detect_edges(image, low_threshold=50, high_threshold=150):
+    return cv2.Canny(image, low_threshold, high_threshold)
+
+
+def hough_lines(image):
+    return cv2.HoughLinesP(image, rho=1, theta=np.pi / 180, threshold=50, minLineLength=20, maxLineGap=50)
+
+
+def detect_lines(image):
+    selected_image = white_and_yellow(image)
+    gray = convert_to_gray(selected_image)
+    blurred_image = blur_image(gray)
+    edge_image = detect_edges(blurred_image, low_threshold=30)
+    lines = hough_lines(edge_image)
+    return lines
+
+
 class BirdEye:
     def __init__(self, pts1, pts2, cam_matrix, distortion_coef):
         self.pts1 = pts1
@@ -59,15 +106,27 @@ class BirdEye:
         return image
 
     def sky_view(self, ground_image, show_dotted=False):
-        shape = (640, 640)
+        shape = (800, 800)
         warp_image = cv2.warpPerspective(ground_image, self.warp_matrix, shape, flags=cv2.INTER_LINEAR)
         if show_dotted:
             show_dotted_image(warp_image, self.dest_points, "warp")
         return warp_image
 
+    def back_to_normal(self, normal_image, lines, preproc_image, show_dotted=False):
+        shape = (normal_image.shape[1], normal_image.shape[0])
+        lines_image = np.zeros_like(preproc_image)
+        lines_image = draw_lines(lines_image, lines, thickness=7)
+        norm_image = cv2.warpPerspective(lines_image, self.inv_warp_matrix, shape, flags=cv2.INTER_LINEAR)
+        if show_dotted:
+            show_dotted_image(normal_image, self.src_points, "back_to_normal")
+        return norm_image
 
-# class LaneFilter:
-#     def __init__(self, p):
+    def just_back(self, shape, image):
+        norm_image = cv2.warpPerspective(image, self.inv_warp_matrix, shape, flags=cv2.INTER_LINEAR)
+        return norm_image
+
+
+
 
 
 
