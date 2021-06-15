@@ -27,6 +27,11 @@ def draw_points(image, points, d=5, color=(255, 0, 255), make_copy=True):
     return image
 
 
+def region_of_interest():
+    pass
+
+
+
 def draw_lines(image, lines, color=(255, 0, 0), thickness=2, make_copy=True):
     if make_copy:
         image = np.copy(image)
