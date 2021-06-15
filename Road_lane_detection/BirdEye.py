@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import pickle
-from helpers import show_dotted_image, draw_lines
+from helpers import show_dotted_image, draw_lines, draw_points
 
 
 def init_birdeye():
@@ -32,7 +32,8 @@ class BirdEye:
         return image
 
     def sky_view(self, ground_image, show_dotted=False):
-        shape = (800, 800)
+        temp_image = self.undistort(ground_image, show_dotted=False)
+        shape = (temp_image.shape[1], temp_image.shape[0])
         warp_image = cv2.warpPerspective(ground_image, self.warp_matrix, shape, flags=cv2.INTER_LINEAR)
         if show_dotted:
             show_dotted_image(warp_image, self.dest_points, "warp")

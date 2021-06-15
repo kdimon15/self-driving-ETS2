@@ -19,7 +19,7 @@ def preprocess_image(image, birdeye, make_copy=True):
     return image
 
 
-def draw_points(image, points, d=5, color=(0, 0, 255), make_copy=True):
+def draw_points(image, points, d=5, color=(255, 0, 255), make_copy=True):
     if make_copy:
         image = np.copy(image)
     for point in points:
@@ -40,9 +40,11 @@ def draw_lines(image, lines, color=(255, 0, 0), thickness=2, make_copy=True):
 def scale_abs(x, m=255):
     x = np.absolute(x)
     x = np.uint8(m * x / np.max(x))
+    return x
 
 
 def roi(gray, mn=125, mx=1200):
     m = np.copy(gray) + 1
     m[:, :mn] = 0
     m[:, mx:] = 0
+    return m
