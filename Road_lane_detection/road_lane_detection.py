@@ -21,8 +21,8 @@ if __name__ == "__main__":
     path2video = "video.mov"
     cap = cv2.VideoCapture(path2video)
     birdEye = init_birdeye()
-    p = {'sat_thresh': 50, "light_thresh": 10, "light_thresh_agr": 100,
-         "grad_thresh": (0.7, 1.4), "mag_thresh": 10, "x_thresh": 10}
+    p = {'sat_thresh': 120, "light_thresh": 40, "light_thresh_agr": 205,
+         "grad_thresh": (0.7, 1.4), "mag_thresh": 40, "x_thresh": 20}
     laneFilter = LaneFilter(p)
 
     while cap.isOpened():
