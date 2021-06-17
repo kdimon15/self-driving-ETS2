@@ -1,17 +1,6 @@
 import cv2
 import numpy as np
-import pickle
-from helpers import show_dotted_image, draw_lines, draw_points
-
-
-def init_birdeye():
-    calibration_data = pickle.load(open("calibration_data.p", "rb"))
-    matrix = calibration_data['camera_matrix']
-    dist_coef = calibration_data['distortion_coefficient']
-    source_points = [(390, 0), (100, 430), (680, 430), (500, 0)]
-    dest_points = [(170, 0), (170, 800), (600, 800), (600, 0)]
-    birdEye = BirdEye(source_points, dest_points, matrix, dist_coef)
-    return birdEye
+from helpers import show_dotted_image
 
 
 class BirdEye:

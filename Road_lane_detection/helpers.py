@@ -11,25 +11,12 @@ def show_dotted_image(this_image, points, name, thickness=5,
     cv2.imshow(name, image)
 
 
-def preprocess_image(image, birdeye, make_copy=True):
-    if make_copy:
-        image = np.copy(image)
-    image = birdeye.undistort(image, show_dotted=False)
-    image = birdeye.sky_view(image, show_dotted=False)
-    return image
-
-
 def draw_points(image, points, d=5, color=(255, 0, 255), make_copy=True):
     if make_copy:
         image = np.copy(image)
-    for point in points:
-        cv2.circle(image, point, d, color, cv2.FILLED)
+    for x, y in points:
+        cv2.circle(image, (int(x), int(y)), d, color, cv2.FILLED)
     return image
-
-
-def region_of_interest():
-    pass
-
 
 
 def draw_lines(image, lines, color=(255, 0, 0), thickness=2, make_copy=True):
@@ -53,3 +40,32 @@ def roi(gray, mn=125, mx=1200):
     m[:, :mn] = 0
     m[:, mx:] = 0
     return m
+
+
+def blur_image(image, kernel_size=15):
+    return cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
+
+
+def convert_to_gray(image):
+    return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+
+def white_and_yellow(image):
+    lower = np.uint8([170, 170, 170])
+    upper = np.uint8([255, 255, 255])
+    white_mask = cv2.inRange(image, lower, upper)
+    # yellow color mask
+    lower = np.uint8([190, 190, 0])
+    upper = np.uint8([255, 255, 255])
+    yellow_mask = cv2.inRange(image, lower, upper)
+    # combine the mask
+    mask = cv2.bitwise_or(white_mask, yellow_mask)
+    masked = cv2.bitwise_and(image, image, mask=mask)
+    return masked
+
+
+def preprocess_image(image):
+    selected_image = white_and_yellow(image)
+    gray = convert_to_gray(selected_image)
+    blurred = blur_image(gray, kernel_size=5)
+    return blurred
