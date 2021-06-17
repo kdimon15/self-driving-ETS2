@@ -64,8 +64,23 @@ def white_and_yellow(image):
     return masked
 
 
+def region_of_interest(image):
+    print(image.shape)
+    height = image.shape[0]
+    width = image.shape[1]
+    polygons = np.array([
+        [(50, 0), (0, height), (width, height), (width - 50, 0)]
+    ])
+    mask = np.zeros_like(image)
+    cv2.fillPoly(mask, polygons, 255)
+    cv2.imshow("mask", mask)
+    masked_image = cv2.bitwise_and(image, mask)
+    return masked_image
+
+
 def preprocess_image(image):
     selected_image = white_and_yellow(image)
     gray = convert_to_gray(selected_image)
-    blurred = blur_image(gray, kernel_size=5)
-    return blurred
+    blurred = blur_image(gray, kernel_size=3)
+    interest = region_of_interest(blurred)
+    return interest
