@@ -29,30 +29,34 @@ def pipeline(img, birdEye, curves):
     binary = preprocess_image(ground_image)
     wb = np.logical_and(birdEye.sky_view(binary), roi(binary)).astype(np.uint8)
     interest = region_of_interest(wb)
-    cv2.imshow("sky_view", birdEye.sky_view(binary))
-    cv2.imshow("interest", np.copy(interest)*255)
     result = curves.fit(interest)
     ground_img_with_projection = birdEye.project(ground_image, binary,
                                                  result['pixel_left_best_fit_curve'],
                                                  result['pixel_right_best_fit_curve'])
-    return ground_img_with_projection
+    position = result['vehicle_position_words']
+    cv2.putText(ground_img_with_projection, str(position), (15, 35), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 2)
+    return ground_img_with_projection, position
 
 
 if __name__ == "__main__":
     birdEye, cap, curves = init_all()
+    i = 0
+    s = 0
     while cap.isOpened():
         try:
+            i += 1
             start = time.time()
             ret, frame = cap.read()
             resized = frame[620:-60, 500:-600]
-            cv2.imshow("points", draw_points(resized, birdEye.src_points))
-            lines_image = pipeline(resized, birdEye, curves)
+            lines_image, position = pipeline(resized, birdEye, curves)
             cv2.imshow("frame", frame)
             cv2.imshow("lines_image", lines_image)
             if cv2.waitKey(1) and keyboard.is_pressed("q"):
                 break
             end = time.time()
-            print(end - start)
+            if i > 10:
+                s += end-start
+            print(round(s / (i - 10), 4))
         except:
             pass
     cap.release()

@@ -100,13 +100,7 @@ class Curves:
         xr = kr[0] * (y ** 2) + kr[1] * y + kr[2]
         pix_pos = xl + (xr - xl) / 2
         self.vehicle_position = (pix_pos - mid) * self.kx
-
-        if self.vehicle_position < 0:
-            self.vehicle_position_words = str(np.absolute(np.round(self.vehicle_position, 2))) + " m left of center"
-        elif self.vehicle_position > 0:
-            self.vehicle_position_words = str(np.absolute(np.round(self.vehicle_position, 2))) + " m right of center"
-        else:
-            self.vehicle_position_words = "at the center"
+        self.vehicle_position_words = np.round(self.vehicle_position, 2)
 
     def fit(self, binary):
 

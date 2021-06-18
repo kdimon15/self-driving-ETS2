@@ -65,7 +65,6 @@ def white_and_yellow(image):
 
 
 def region_of_interest(image):
-    print(image.shape)
     height = image.shape[0]
     width = image.shape[1]
     polygons = np.array([
@@ -73,7 +72,6 @@ def region_of_interest(image):
     ])
     mask = np.zeros_like(image)
     cv2.fillPoly(mask, polygons, 255)
-    cv2.imshow("mask", mask)
     masked_image = cv2.bitwise_and(image, mask)
     return masked_image
 
