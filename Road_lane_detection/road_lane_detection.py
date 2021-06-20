@@ -18,28 +18,29 @@ def init_all():
     calibration_data = pickle.load(open("calibration_data.p", "rb"))
     matrix = calibration_data['camera_matrix']
     dist_coef = calibration_data['distortion_coefficient']
-    source_points = [(350 , 0), (120, 400), (700, 400), (500, 0)]
-    dest_points = [(260, 0), (260, 400), (580, 400), (580, 0)]
+    source_points = [(350, 0), (120, 350), (700, 350), (500, 0)]
+    dest_points = [(260, 0), (260, 350), (580, 350), (580, 0)]
     eye = BirdEye(source_points, dest_points, matrix, dist_coef)
-    return eye, capture, cur
+    return eye, cur, capture
 
 
 def pipeline(img, birdEye, curves):
     ground_image = birdEye.undistort(img)
-    binary = preprocess_image(ground_image)
+    binary = preprocess_image(ground_image, np.average(ground_image[150:, 100:-100])+40)
+    cv2.imshow("binary", binary)
     wb = np.logical_and(birdEye.sky_view(binary), roi(binary)).astype(np.uint8)
     interest = region_of_interest(wb)
     result = curves.fit(interest)
     ground_img_with_projection = birdEye.project(ground_image, binary,
-                                                 result['pixel_left_best_fit_curve'],
-                                                 result['pixel_right_best_fit_curve'])
+                                                result['pixel_left_best_fit_curve'],
+                                                result['pixel_right_best_fit_curve'])
     position = result['vehicle_position_words']
     cv2.putText(ground_img_with_projection, str(position), (15, 35), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 2)
     return ground_img_with_projection, position
 
 
 if __name__ == "__main__":
-    birdEye, cap, curves = init_all()
+    birdEye, curves, cap = init_all()
     i = 0
     s = 0
     while cap.isOpened():
@@ -47,7 +48,7 @@ if __name__ == "__main__":
             i += 1
             start = time.time()
             ret, frame = cap.read()
-            resized = frame[620:-60, 500:-600]
+            resized = frame[670:-60, 500:-600]
             lines_image, position = pipeline(resized, birdEye, curves)
             cv2.imshow("frame", frame)
             cv2.imshow("lines_image", lines_image)
@@ -56,7 +57,7 @@ if __name__ == "__main__":
             end = time.time()
             if i > 10:
                 s += end-start
-            print(round(s / (i - 10), 4))
+            #print(round(s / (i - 10), 4))
         except:
-            pass
+            print("pass")
     cap.release()

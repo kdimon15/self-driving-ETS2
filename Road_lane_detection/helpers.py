@@ -1,5 +1,10 @@
 import cv2
 import numpy as np
+import pyautogui
+
+
+def get_screenshot():
+    return pyautogui.screenshot()
 
 def show_dotted_image(this_image, points, name, thickness=5,
                       lines_color=(255, 0, 255), dot_color=(0, 0, 255), d=10):
@@ -50,8 +55,8 @@ def convert_to_gray(image):
     return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
 
-def white_and_yellow(image):
-    lower = np.uint8([170, 170, 170])
+def white_and_yellow(image, avg):
+    lower = np.uint8([avg, avg, avg])
     upper = np.uint8([255, 255, 255])
     white_mask = cv2.inRange(image, lower, upper)
     # yellow color mask
@@ -76,8 +81,8 @@ def region_of_interest(image):
     return masked_image
 
 
-def preprocess_image(image):
-    selected_image = white_and_yellow(image)
+def preprocess_image(image, avg):
+    selected_image = white_and_yellow(image, avg)
     gray = convert_to_gray(selected_image)
     blurred = blur_image(gray, kernel_size=3)
     interest = region_of_interest(blurred)
