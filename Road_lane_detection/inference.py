@@ -30,19 +30,27 @@ while True:
             go = False
         screen = np.array(get_screenshot())
         screen = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
-        resized = screen[620:-60, 500:-600]
-        # cv2.imshow("screenshot", screen)
+        if np.average(screen) > 80:
+            offset = 50
+        else:
+            offset = 30
+        resized = screen[620:-60, 400:-600]
+        lines_image, position = pipeline(resized, birdEye, curves, offset)
+        print(position)
+        cv2.imshow("lines image", lines_image)
         if go:
-            lines_image, position = pipeline(resized, birdEye, curves)
-            cv2.imshow("lines image", lines_image)
-            if position < -0.1:
+            if -0.3 < position < -0.1:
+                curX = mn - 200
+            elif position <= -0.3:
                 curX = mn
-            elif position > 0.1:
+            elif 0.3 > position > 0.1:
                 curX = mx
+            elif position >= 0.3:
+                curX = mx + 200
             else:
                 curX = md
             move(curX, curY)
-            print(position)
+            print(curX, curY)
         else:
             move(md, 0)
 

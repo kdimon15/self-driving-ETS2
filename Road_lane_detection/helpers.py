@@ -40,7 +40,7 @@ def scale_abs(x, m=255):
     return x
 
 
-def roi(gray, mn=125, mx=1200):
+def roi(gray, mn=100, mx=820):
     m = np.copy(gray) + 1
     m[:, :mn] = 0
     m[:, mx:] = 0
@@ -85,5 +85,5 @@ def preprocess_image(image, avg):
     selected_image = white_and_yellow(image, avg)
     gray = convert_to_gray(selected_image)
     blurred = blur_image(gray, kernel_size=3)
-    interest = region_of_interest(blurred)
-    return interest
+    return blurred
+

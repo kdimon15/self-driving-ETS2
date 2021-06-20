@@ -18,17 +18,17 @@ def init_all():
     calibration_data = pickle.load(open("calibration_data.p", "rb"))
     matrix = calibration_data['camera_matrix']
     dist_coef = calibration_data['distortion_coefficient']
-    source_points = [(350, 0), (120, 350), (700, 350), (500, 0)]
-    dest_points = [(260, 0), (260, 350), (580, 350), (580, 0)]
+    source_points = [(470, 0), (220, 400), (790, 400), (590, 0)]
+    dest_points = [(290, 0), (290, 400), (630, 400), (630, 0)]
     eye = BirdEye(source_points, dest_points, matrix, dist_coef)
     return eye, cur, capture
 
 
-def pipeline(img, birdEye, curves):
+def pipeline(img, birdEye, curves, offset):
     ground_image = birdEye.undistort(img)
-    binary = preprocess_image(ground_image, np.average(ground_image[150:, 100:-100])+40)
-    cv2.imshow("binary", binary)
+    binary = preprocess_image(ground_image, np.average(ground_image[150:, 100:-100])+offset)
     wb = np.logical_and(birdEye.sky_view(binary), roi(binary)).astype(np.uint8)
+    cv2.imshow("wb", np.copy(wb)*255)
     interest = region_of_interest(wb)
     result = curves.fit(interest)
     ground_img_with_projection = birdEye.project(ground_image, binary,
@@ -48,8 +48,12 @@ if __name__ == "__main__":
             i += 1
             start = time.time()
             ret, frame = cap.read()
-            resized = frame[670:-60, 500:-600]
-            lines_image, position = pipeline(resized, birdEye, curves)
+            resized = frame[620:-60, 400:-600]
+            if np.average(frame) > 80:
+                offset = 50
+            else:
+                offset = 30
+            lines_image, position = pipeline(resized, birdEye, curves, offset)
             cv2.imshow("frame", frame)
             cv2.imshow("lines_image", lines_image)
             if cv2.waitKey(1) and keyboard.is_pressed("q"):
@@ -57,7 +61,7 @@ if __name__ == "__main__":
             end = time.time()
             if i > 10:
                 s += end-start
-            #print(round(s / (i - 10), 4))
+            print(round(s / (i - 10), 4))
         except:
             print("pass")
     cap.release()
