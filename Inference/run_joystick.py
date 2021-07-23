@@ -13,7 +13,7 @@ for i in list(range(4))[::-1]:
     time.sleep(1)
 
 
-clas_session = onnxruntime.InferenceSession("data/efficientnet-b0.onnx")
+clas_session = onnxruntime.InferenceSession("efficientnet-b0.onnx")
 transform = albu.Compose([
                         albu.Resize(256, 256),
                         albu.Normalize(mean=[0.485, 0.456, 0.406],
@@ -43,70 +43,25 @@ def move(x, y):
     device.update()
 
 
-def balance(x, mid):
-    if x > mid:
-        x -= 1000
-        if x < mid:
-            x = mid
-    elif x < mid:
-        x += 1000
-        if x > mid:
-            x = mid
-    return x
-
-
-def forward(x, y):
-    y += 1000
-    if y > max:
-        y = max
-    x = balance(x, mid)
-    return x, y
-
-
-def right(x, y):
-    y += 1000
-    if y > max:
-        cur_y = max
-    x += 1000
-    if x > max:
-        x = max
-    return x, y
-
-
-def left(x, y):
-    y += 1000
-    if y > max:
-        y = max
-    x += 1000
-    if x < min:
-        x = min
-    return x, y
-
-
-def stop(x, y):
-    y -= 1000
-    if y < min:
-        y = min
-    x = balance(x, mid)
-
-
 work = False
 
 while True:
     if keyboard.is_pressed("q"):
         break
     if work:
-        screen = np.array(pyautogui.screenshot(region=(920, 470, 760, 450)))
+        screen = np.array(pyautogui.screenshot(region=(600, 500, 800, 500)))
         screen = transform(image=screen)['image'].unsqueeze(0)
         pred = inf_onnx(screen)[0][0][0]
-        if pred > 0.8:
-            curX, curY = right(curX, curY)
-        elif pred < -0.8:
-            curX, curY = left(curX, curY)
+        if (pred < -0.1 and pred > -1) or (pred > 0.1 and pred < 1):
+            curX = mid + mid * pred / 2
+        elif pred <= -1:
+            curX = min
+        elif pred >= 1:
+            curX = max
         else:
-            curX, curY = forward(curX, curY)
-        print(pred)
-        move(curX, curY)
+            curX = mid
+        print(curX, pred)
+        move(int(curX), curY)
     else:
         time.sleep(0.1)
         curX, curY = mid, min
@@ -117,4 +72,4 @@ while True:
     if keyboard.is_pressed("i"):
         work = False
 
-    print(work, curX, curY)
+    #print(work, curX, curY)
