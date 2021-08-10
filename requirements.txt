@@ -1,0 +1,9 @@
+keyboard
+opencv-python
+numpy
+PyAutoGUI
+pyvjoy
+pygame
+onnxruntime
+PyDirectInput
+albumentations
