@@ -8,7 +8,6 @@ import numpy as np
 for i in range(5, 0, -1):
     print(i)
     time.sleep(1)
-
 dic = {
     "names": [],
     'x': [],

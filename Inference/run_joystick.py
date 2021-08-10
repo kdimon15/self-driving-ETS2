@@ -4,7 +4,6 @@ import onnxruntime
 from albumentations.pytorch import ToTensorV2
 import numpy as np
 import pyautogui
-import cv2
 import time
 import pyvjoy
 
