@@ -47,10 +47,6 @@ while True:
         if event.type == pygame.JOYAXISMOTION:
             if event.axis == 0:
                 x = event.value
-            # elif event.axis == 4:
-            #     positions[1] = round((event.value + 1) / 2, 3)
-            # elif event.axis == 5:
-            #     positions[2] = round((event.value + 1) / 2, 3)
 
         elif event.type == pygame.JOYBUTTONDOWN:
             if event.button == 0:
